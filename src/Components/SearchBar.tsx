@@ -1,6 +1,10 @@
-import React from "react";
+import { useState }from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, Type } from "@google/genai";
+import { url } from "inspector";
+import Card  from "./Card"
+import { json } from "stream/consumers";
+import "../Styles/global.css"
 
 
 type Inputs = {
@@ -20,19 +24,12 @@ const SearchBar = () => {
         handleSubmit
     } = useForm<Inputs>();
 
-    const onSubmit: SubmitHandler<Inputs> = (data) => console.log(data.query)
+    const [arr, setArr] = useState([""])
 
-    //Quickstart, answers a question
-    async function runQuery() {
-        const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: "Explain how AI works in a few words",
-        });
-        
-        return response.text;
-    }
+    // var arr: string[] = [];
 
     const search: SubmitHandler<Inputs> = async (userInput) => {
+        
         const listResponse = await ai.models.generateContent({
             model: "gemini-2.5-flash",
             contents: "Answer the following question and output in a list. " + userInput.query,
@@ -41,23 +38,42 @@ const SearchBar = () => {
         const searchResponse = await ai.models.generateContent({
             model: "gemini-2.5-flash",
             contents: [
-                "Use Google Shoppong to find me Amazon links for products that match items in this list: " + listResponse.text + ". Do not embed the links give the full url for each product." //May need to tweak but got links from this prompt
+                "Find me Amazon links for products that match items in this list: " + listResponse.text + ". Do not embed the links give the full url for each product. Produce JSON matching this specification: \
+                Products = [ url, ] \
+                Return: array<Products>" 
             ],
             config: {
-                tools: [{urlContext: {}}, {googleSearch: {}}],
+                tools: [{urlContext: {}}, {googleSearch: {}}]
             }
         });
 
         console.log(searchResponse.text)
-        console.log(searchResponse.candidates)
-    }
+        // console.log(searchResponse.candidates)
 
+       if (searchResponse.text != undefined) {
+            try {
+                setArr(JSON.parse(searchResponse.text.slice(7, -4))["Products"])
+                console.log(arr)
+            } catch (err){
+                console.log(err)
+            }
+        } else {
+            console.log("Err: Search response undefined")
+        }
+    }
+        
     return(
+        <>
         <form onSubmit={handleSubmit(search)}>
             <input defaultValue="" {...register("query")} />
-
             <input type="submit" />
         </form>
+        <div className="grid"> 
+            { arr && (
+                arr.map(e => <Card url={e}/>)
+            )}
+        </div>
+        </>
     );
 }
 
