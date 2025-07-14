@@ -17,8 +17,12 @@
     transform: scale(1.05)
 }
 
-.card-desc {
-    text-overflow: ellipsis;
+.card-header {
+    color: black;
+}
+
+.card-price{
+    color: black;
 }
 
 .card-img {
