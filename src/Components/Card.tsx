@@ -23,7 +23,7 @@ const Card = ({ url, data }: CardProps) => {
                     src: img
                 },
             ),
-            createElement('h1',
+            createElement('p',
                 { className: 'card-header' },
                 title
             ),

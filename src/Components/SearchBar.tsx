@@ -4,7 +4,8 @@ import { GoogleGenAI } from "@google/genai";
 import axios from 'axios'
 import Card  from "./Card"
 import "../Styles/global.css"
-
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 
 type Inputs = {
     query: string
@@ -114,9 +115,11 @@ const SearchBar = () => {
         
     return(
         <>
-        <form onSubmit={handleSubmit(search)}>
+        <form className="searchbar" onSubmit={handleSubmit(search)}>
             <input defaultValue="" {...register("query")} />
-            <input type="submit" />
+            <button type="submit">
+            {<FontAwesomeIcon icon={faMagnifyingGlass} />}
+            </button>
         </form>
         <div className="grid">
             { renderCards && (
